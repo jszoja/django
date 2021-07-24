@@ -1411,12 +1411,10 @@ class ManageTestserver(SimpleTestCase):
                 "has not been deleted. You can explore it on your own."
             ),
             skip_checks=True,
-            traceback=False,
             use_ipv6=False,
             use_reloader=False,
             use_static_handler=True,
             use_threading=connection.features.test_db_allows_multiple_connections,
-            verbosity=1,
         )
 
 
@@ -1495,6 +1493,24 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotEqual(version_location, -1)
         self.assertLess(tag_location, version_location)
         self.assertOutput(out, "Checks the entire Django project for potential problems.")
+
+    def test_help_runserver_no_verbosity_trackback(self):
+        "runserver doesn't support --verbosity and --trackback options"
+
+        args = ['runserver', '--help']
+        out, err = self.run_manage(args)
+        self.assertNotInOutput(out, '--verbosity')
+        self.assertNotInOutput(out, '--traceback')
+        self.assertOutput(out, 'settings')
+
+    def test_help_check_with_verbosity_trackback(self):
+        "check does support --verbosity and --trackback options"
+
+        args = ['check', '--help']
+        out, err = self.run_manage(args)
+        self.assertOutput(out, '--verbosity')
+        self.assertOutput(out, '--traceback')
+        self.assertOutput(out, 'settings')
 
     def test_color_style(self):
         style = color.no_style()
