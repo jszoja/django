@@ -34,7 +34,7 @@ class Command(BaseCommand):
     protocol = 'http'
     server_cls = WSGIServer
 
-    disabled_default_arguments = ['verbosity', 'traceback']
+    suppressed_base_arguments = {'verbosity', 'traceback'}
 
     def add_arguments(self, parser):
         parser.add_argument(

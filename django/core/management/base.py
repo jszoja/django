@@ -2,6 +2,7 @@
 Base classes for writing management commands (named commands which can
 be executed through ``django-admin`` or ``manage.py``).
 """
+import argparse
 import os
 import sys
 import warnings
@@ -239,9 +240,7 @@ class BaseCommand:
     base_stealth_options = ('stderr', 'stdout')
     # Command-specific options not defined by the argument parser.
     stealth_options = ()
-    # hook for disabling args available as default for all commands
-    # shall be overwritten in derived classes if needed
-    disabled_default_arguments = []
+    suppressed_base_arguments = set()
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         self.stdout = OutputWrapper(stdout or sys.stdout)
@@ -288,40 +287,47 @@ class BaseCommand:
             called_from_command_line=getattr(self, '_called_from_command_line', None),
             **kwargs
         )
-        if 'version' not in self.disabled_default_arguments:
-            parser.add_argument('--version', action='version', version=self.get_version())
-        if 'verbosity' not in self.disabled_default_arguments:
-            parser.add_argument(
-                '-v', '--verbosity', default=1,
-                type=int, choices=[0, 1, 2, 3],
-                help='Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output',
+        parser.add_argument('--version', action='version', version=self.get_version())
+        parser.add_argument(
+            '-v', '--verbosity', default=1,
+            type=int, choices=[0, 1, 2, 3],
+            help=argparse.SUPPRESS if 'verbosity' in self.suppressed_base_arguments else (
+                'Verbosity level; 0=minimal output, 1=normal output,'
+                '2=verbose output, 3=very verbose output'
             )
-        if 'settings' not in self.disabled_default_arguments:
-            parser.add_argument(
-                '--settings',
-                help=(
-                    'The Python path to a settings module, e.g. '
-                    '"myproject.settings.main". If this isn\'t provided, the '
-                    'DJANGO_SETTINGS_MODULE environment variable will be used.'
-                ),
+        )
+        parser.add_argument(
+            '--settings',
+            help=argparse.SUPPRESS if 'settings' in self.suppressed_base_arguments else (
+                'The Python path to a settings module, e.g. '
+                '"myproject.settings.main". If this isn\'t provided, the '
+                'DJANGO_SETTINGS_MODULE environment variable will be used.'
             )
-        if 'pythonpath' not in self.disabled_default_arguments:
-            parser.add_argument(
-                '--pythonpath',
-                help='A directory to add to the Python path, e.g. "/home/djangoprojects/myproject".',
+        )
+        parser.add_argument(
+            '--pythonpath',
+            help=argparse.SUPPRESS if 'pythonpath' in self.suppressed_base_arguments else (
+                'A directory to add to the Python path,'
+                'e.g. "/home/djangoprojects/myproject".'
             )
-        if 'traceback' not in self.disabled_default_arguments:
-            parser.add_argument('--traceback', action='store_true', help='Raise on CommandError exceptions')
-        if 'no-color' not in self.disabled_default_arguments:
-            parser.add_argument(
-                '--no-color', action='store_true',
-                help="Don't colorize the command output.",
+        )
+        parser.add_argument(
+            '--traceback', action='store_true',
+            help=argparse.SUPPRESS if 'traceback' in self.suppressed_base_arguments else (
+                'Raise on CommandError exceptions')
+        )
+        parser.add_argument(
+            '--no-color', action='store_true',
+            help=argparse.SUPPRESS if 'no-color' in self.suppressed_base_arguments else (
+                "Don't colorize the command output."
             )
-        if 'force-color' not in self.disabled_default_arguments:
-            parser.add_argument(
-                '--force-color', action='store_true',
-                help='Force colorization of the command output.',
+        )
+        parser.add_argument(
+            '--force-color', action='store_true',
+            help=argparse.SUPPRESS if 'force-color' in self.suppressed_base_arguments else (
+                'Force colorization of the command output.'
             )
+        )
         if self.requires_system_checks:
             parser.add_argument(
                 '--skip-checks', action='store_true',
