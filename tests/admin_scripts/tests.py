@@ -1844,6 +1844,33 @@ class CommandTypes(AdminScriptTestCase):
             "('settings', None), ('traceback', False), ('verbosity', 1)]"
         )
 
+    def test_with_suppress_command_help(self):
+
+        args = ['with_suppress_command', '--help']
+        out, err = self.run_manage(args)
+        self.assertNoOutput(err)
+        self.assertOutput(out, 'Test basic commands with suppress')
+        self.assertOutput(out, '--help')
+        self.assertNotInOutput(out, '--verbosity')
+        self.assertNotInOutput(out, '--traceback')
+        self.assertNotInOutput(out, '--pythonpath')
+        self.assertNotInOutput(out, '--settings')
+        self.assertNotInOutput(out, '--version')
+        self.assertNotInOutput(out, '--no-color')
+        self.assertNotInOutput(out, '--force-color')
+
+    def test_with_suppress_command_defaults(self):
+        args = ['with_suppress_command', 'testLabel']
+        out, err = self.run_manage(args)
+        self.assertNoOutput(err)
+        self.assertOutput(
+            out,
+            "EXECUTE:WithSuppressCommand labels=('testLabel',), options=[('force_color', False), "
+            "('no_color', False), ('pythonpath', None), ('settings', None), ('traceback', False), ('verbosity', 1)]"
+        )
+
+
+
 
 class Discovery(SimpleTestCase):
 
