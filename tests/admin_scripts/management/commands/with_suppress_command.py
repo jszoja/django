@@ -5,8 +5,8 @@ class Command(BaseCommand):
 
     help = 'Test basic commands with suppress'
     requires_system_checks = []
-    suppressed_base_arguments = {'--verbosity', '--traceback', '--settings', '--pythonpath', '--no-color', '--force-color',
-                                 '--version'}
+    suppressed_base_arguments = {'--verbosity', '--traceback', '--settings', '--pythonpath', '--no-color',
+                                 '--force-color', '--version'}
 
     def add_arguments(self, parser):
         parser.add_argument('args', nargs='*')

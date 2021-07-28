@@ -1869,6 +1869,23 @@ class CommandTypes(AdminScriptTestCase):
             "('no_color', False), ('pythonpath', None), ('settings', None), ('traceback', False), ('verbosity', 1)]"
         )
 
+    def test_add_base_argument(self):
+        args = ['base_command', '--help']
+        out, err = self.run_manage(args)
+        self.assertNoOutput(err)
+        self.assertOutput(
+            out,
+            "usage: manage.py base_command [-h] [--option_a OPTION_A] [--option_b OPTION_B]\n"
+            "                              [--option_c OPTION_C] [--version]\n"
+            "                              [--verbosity {0,1,2,3}] [--settings SETTINGS]\n"
+            "                              [--pythonpath PYTHONPATH] [--traceback]\n"
+            "                              [--no-color] [--force-color]\n"
+            "                              [args [args ...]]"
+        )
+        self.assertOutput(
+            out,
+            "--verbosity {0,1,2,3}, -v {0,1,2,3}"
+        )
 
 
 

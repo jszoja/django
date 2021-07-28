@@ -279,6 +279,16 @@ class BaseCommand:
         Create and return the ``ArgumentParser`` which will be used to
         parse the arguments to this command.
         """
+
+        def add_base_argument(parser: CommandParser, name, *args, **kwargs):
+            """
+            wrapper for CommandParser.add_argument
+            suppresses the help text according to BaseCommand.suppressed_base_arguments
+            """
+            if name in self.suppressed_base_arguments:
+                kwargs['help'] = argparse.SUPPRESS
+            parser.add_argument(name, *args, **kwargs)
+
         parser = CommandParser(
             prog='%s %s' % (os.path.basename(prog_name), subcommand),
             description=self.help or None,
@@ -287,50 +297,44 @@ class BaseCommand:
             called_from_command_line=getattr(self, '_called_from_command_line', None),
             **kwargs
         )
-        parser.add_argument('--version', action='version', version=self.get_version(),
-            help=argparse.SUPPRESS if '--version' in self.suppressed_base_arguments else (
-                "show program's version number and exit"
-            )
+        add_base_argument(
+            parser, '--version', action='version', version=self.get_version(),
+            help="show program's version number and exit"
         )
-        parser.add_argument(
-            '-v', '--verbosity', default=1,
+        add_base_argument(
+            parser, '--verbosity', '-v', default=1,
             type=int, choices=[0, 1, 2, 3],
-            help=argparse.SUPPRESS if '--verbosity' in self.suppressed_base_arguments else (
+            help=(
                 'Verbosity level; 0=minimal output, 1=normal output,'
                 '2=verbose output, 3=very verbose output'
             )
         )
-        parser.add_argument(
-            '--settings',
-            help=argparse.SUPPRESS if '--settings' in self.suppressed_base_arguments else (
+        add_base_argument(
+            parser, '--settings',
+            help=(
                 'The Python path to a settings module, e.g. '
                 '"myproject.settings.main". If this isn\'t provided, the '
                 'DJANGO_SETTINGS_MODULE environment variable will be used.'
             )
         )
-        parser.add_argument(
-            '--pythonpath',
-            help=argparse.SUPPRESS if '--pythonpath' in self.suppressed_base_arguments else (
+        add_base_argument(
+            parser, '--pythonpath',
+            help=(
                 'A directory to add to the Python path,'
                 'e.g. "/home/djangoprojects/myproject".'
             )
         )
-        parser.add_argument(
-            '--traceback', action='store_true',
-            help=argparse.SUPPRESS if '--traceback' in self.suppressed_base_arguments else (
-                'Raise on CommandError exceptions')
+        add_base_argument(
+            parser, '--traceback', action='store_true',
+            help='Raise on CommandError exceptions'
         )
-        parser.add_argument(
-            '--no-color', action='store_true',
-            help=argparse.SUPPRESS if '--no-color' in self.suppressed_base_arguments else (
-                "Don't colorize the command output."
-            )
+        add_base_argument(
+            parser, '--no-color', action='store_true',
+            help="Don't colorize the command output."
         )
-        parser.add_argument(
-            '--force-color', action='store_true',
-            help=argparse.SUPPRESS if '--force-color' in self.suppressed_base_arguments else (
-                'Force colorization of the command output.'
-            )
+        add_base_argument(
+            parser, '--force-color', action='store_true',
+            help='Force colorization of the command output.'
         )
         if self.requires_system_checks:
             parser.add_argument(
