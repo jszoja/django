@@ -191,14 +191,16 @@ Attributes
 All attributes can be set in your derived class and can be used in
 :class:`BaseCommand`’s :ref:`subclasses<ref-basecommand-subclasses>`.
 
-.. attribute:: BaseCommand.disabled_default_arguments
+.. attribute:: BaseCommand.suppressed_base_arguments
 
-    A list object with the default options entries, which are not supported.
-    Use the option names without leading dashes, eg 'verbosity' instead of
+    A set object with the default options entries, which are suppressed.
+    Use the option names you want to suppress the help output for, eg
     '--verbosity'.
     Example: ``manage.py runserver`` command doesn't support both --verbosity
     and --traceback, for that reason it specifies:
-    ``disabled_default_arguments = ['verbosity', 'traceback']``
+    ``suppressed_base_arguments = ['--verbosity', '--traceback']``
+
+    The default values are still passed for the suppressed options.
 
 .. attribute:: BaseCommand.help
 
