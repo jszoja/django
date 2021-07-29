@@ -1833,7 +1833,8 @@ Displays a full stack trace when a :exc:`~django.core.management.CommandError`
 is raised. By default, ``django-admin`` will show an error message when a
 ``CommandError`` occurs and a full stack trace for any other exception.
 
-This option is not supported in ``manage.py runserver``.
+This option is ignored by :djadmin:`runserver`.
+
 
 Example usage::
 
@@ -1849,7 +1850,7 @@ should print to the console.
 * ``2`` means verbose output.
 * ``3`` means *very* verbose output.
 
-This option is not supported in ``manage.py runserver``.
+This option is ignored by :djadmin:`runserver`.
 
 Example usage::
 
