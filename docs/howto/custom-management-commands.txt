@@ -252,7 +252,7 @@ All attributes can be set in your derived class and can be used in
 
     The default values are still passed for the suppressed options.
 
-    .. versionadded:: 3.2
+    .. versionadded:: 4.0
 
 Methods
 -------
