@@ -280,14 +280,16 @@ class BaseCommand:
         parse the arguments to this command.
         """
 
-        def add_base_argument(parser: CommandParser, name, *args, **kwargs):
+        def add_base_argument(parser, *args, **kwargs):
             """
-            wrapper for CommandParser.add_argument
-            suppresses the help text according to BaseCommand.suppressed_base_arguments
+            Call the parser's add_argument() method, suppressing the help text
+            according to BaseCommand.suppressed_base_arguments.
             """
-            if name in self.suppressed_base_arguments:
-                kwargs['help'] = argparse.SUPPRESS
-            parser.add_argument(name, *args, **kwargs)
+            for option_name in args:
+                if option_name[0] == '-' and option_name in self.suppressed_base_arguments:
+                    kwargs['help'] = argparse.SUPPRESS
+                    break
+            parser.add_argument(*args, **kwargs)
 
         parser = CommandParser(
             prog='%s %s' % (os.path.basename(prog_name), subcommand),
@@ -302,7 +304,7 @@ class BaseCommand:
             help="show program's version number and exit"
         )
         add_base_argument(
-            parser, '--verbosity', '-v', default=1,
+            parser, '-v', '--verbosity', default=1,
             type=int, choices=[0, 1, 2, 3],
             help=(
                 'Verbosity level; 0=minimal output, 1=normal output,'

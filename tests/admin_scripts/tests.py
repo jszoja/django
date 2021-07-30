@@ -1381,6 +1381,15 @@ class ManageRunserverEmptyAllowedHosts(AdminScriptTestCase):
         self.assertOutput(err, 'CommandError: You must set settings.ALLOWED_HOSTS if DEBUG is False.')
 
 
+class ManageRunserverOutput(AdminScriptTestCase):
+    def test_suppressed_options(self):
+        """ runserver doesn't support --verbosity and --trackback options"""
+        out, err = self.run_manage(['runserver', '--help'])
+        self.assertNotInOutput(out, '--verbosity')
+        self.assertNotInOutput(out, '--trackback')
+        self.assertOutput(out, '--settings')
+
+
 class ManageTestserver(SimpleTestCase):
 
     @mock.patch.object(TestserverCommand, 'handle', return_value='')
@@ -1418,19 +1427,6 @@ class ManageTestserver(SimpleTestCase):
             use_threading=connection.features.test_db_allows_multiple_connections,
             verbosity=1,
         )
-
-
-class ManageRunserverOutput(AdminScriptTestCase):
-
-    def test_suppressed_options(self):
-        """
-        runserver doesn't support --verbosity and --trackback options
-        """
-
-        out, err = self.run_manage(['runserver', '--help'])
-        self.assertNotInOutput(out, '--verbosity')
-        self.assertNotInOutput(out, '--trackback')
-        self.assertOutput(out, '--settings')
 
 
 ##########################################################################
@@ -1508,15 +1504,6 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotEqual(version_location, -1)
         self.assertLess(tag_location, version_location)
         self.assertOutput(out, "Checks the entire Django project for potential problems.")
-
-    def test_help_check_with_verbosity_trackback(self):
-        "check does support --verbosity and --trackback options"
-
-        args = ['check', '--help']
-        out, err = self.run_manage(args)
-        self.assertOutput(out, '--verbosity')
-        self.assertOutput(out, '--traceback')
-        self.assertOutput(out, 'settings')
 
     def test_color_style(self):
         style = color.no_style()
@@ -1845,48 +1832,50 @@ class CommandTypes(AdminScriptTestCase):
         )
 
     def test_with_suppress_command_help(self):
-
         args = ['with_suppress_command', '--help']
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
         self.assertOutput(out, 'Test basic commands with suppress')
         self.assertOutput(out, '--help')
-        self.assertNotInOutput(out, '--verbosity')
-        self.assertNotInOutput(out, '--traceback')
-        self.assertNotInOutput(out, '--pythonpath')
-        self.assertNotInOutput(out, '--settings')
         self.assertNotInOutput(out, '--version')
+        self.assertNotInOutput(out, '--verbosity')
+        self.assertNotInOutput(out, '--settings')
+        self.assertNotInOutput(out, '--pythonpath')
+        self.assertNotInOutput(out, '--traceback')
         self.assertNotInOutput(out, '--no-color')
         self.assertNotInOutput(out, '--force-color')
 
     def test_with_suppress_command_defaults(self):
-        args = ['with_suppress_command', 'testLabel']
+        args = ['with_suppress_command']
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
         self.assertOutput(
             out,
-            "EXECUTE:WithSuppressCommand labels=('testLabel',), options=[('force_color', False), "
-            "('no_color', False), ('pythonpath', None), ('settings', None), ('traceback', False), ('verbosity', 1)]"
+            "EXECUTE:WithSuppressCommand options=[('force_color', False), "
+            "('no_color', False), ('pythonpath', None), ('settings', None), "
+            "('traceback', False), ('verbosity', 1)]"
         )
 
     def test_add_base_argument(self):
         args = ['base_command', '--help']
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
-        self.assertOutput(
-            out,
-            "usage: manage.py base_command [-h] [--option_a OPTION_A] [--option_b OPTION_B]\n"
-            "                              [--option_c OPTION_C] [--version]\n"
-            "                              [--verbosity {0,1,2,3}] [--settings SETTINGS]\n"
-            "                              [--pythonpath PYTHONPATH] [--traceback]\n"
-            "                              [--no-color] [--force-color]\n"
-            "                              [args [args ...]]"
-        )
-        self.assertOutput(
-            out,
-            "--verbosity {0,1,2,3}, -v {0,1,2,3}"
-        )
-
+        expected_options = [
+            '-h',
+            '--option_a OPTION_A',
+            '--option_b OPTION_B',
+            '--option_c OPTION_C',
+            '--version',
+            '-v {0,1,2,3}',
+            '--settings SETTINGS',
+            '--pythonpath PYTHONPATH',
+            '--traceback',
+            '--no-color',
+            '--force-color',
+        ]
+        for option in expected_options:
+            self.assertOutput(out, f'[{option}]')
+        self.assertOutput(out, '-v {0,1,2,3}, --verbosity {0,1,2,3}')
 
 
 class Discovery(SimpleTestCase):

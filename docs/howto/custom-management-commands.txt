@@ -246,11 +246,13 @@ All attributes can be set in your derived class and can be used in
 
     The default command options to suppress in the help output. This should be
     a set of option names (e.g. :option:`--verbosity`).
-    Example: ``manage.py runserver`` command doesn't support both :option:`--verbosity`
+    For example: :djadmin:`runserver` command doesn't support both :option:`--verbosity`
     and :option:`--traceback`, for that reason it specifies:
     ``suppressed_base_arguments = {'--verbosity', '--traceback'}``
 
     The default values are still passed for the suppressed options.
+
+    .. versionadded:: 3.2
 
 Methods
 -------
