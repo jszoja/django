@@ -1844,6 +1844,7 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotInOutput(out, '--traceback')
         self.assertNotInOutput(out, '--no-color')
         self.assertNotInOutput(out, '--force-color')
+        self.assertNotInOutput(out, 'input file')
 
     def test_with_suppress_command_defaults(self):
         args = ['with_suppress_command']
@@ -1851,7 +1852,7 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNoOutput(err)
         self.assertOutput(
             out,
-            "EXECUTE:WithSuppressCommand options=[('force_color', False), "
+            "EXECUTE:WithSuppressCommand options=[('file', None), ('force_color', False), "
             "('no_color', False), ('pythonpath', None), ('settings', None), "
             "('traceback', False), ('verbosity', 1)]"
         )
