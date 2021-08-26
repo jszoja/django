@@ -273,6 +273,7 @@ Management Commands
   at startup. This allows loading shell history between interactive sessions.
   As a consequence, ``readline`` is no longer loaded if running in *isolated*
   mode.
+
 * New attribute :attr:`~django.core.management.BaseCommand.suppressed_base_arguments` allows
   suppressing a help output for the unsupported default command options e.g.
   :option:`--verbosity` in :djadmin:`runserver` management command
