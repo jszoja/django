@@ -279,18 +279,6 @@ class BaseCommand:
         Create and return the ``ArgumentParser`` which will be used to
         parse the arguments to this command.
         """
-
-        def add_base_argument(parser, *args, **kwargs):
-            """
-            Call the parser's add_argument() method, suppressing the help text
-            according to BaseCommand.suppressed_base_arguments.
-            """
-            for arg in args:
-                if arg in self.suppressed_base_arguments:
-                    kwargs['help'] = argparse.SUPPRESS
-                    break
-            parser.add_argument(*args, **kwargs)
-
         parser = CommandParser(
             prog='%s %s' % (os.path.basename(prog_name), subcommand),
             description=self.help or None,
@@ -299,11 +287,11 @@ class BaseCommand:
             called_from_command_line=getattr(self, '_called_from_command_line', None),
             **kwargs
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--version', action='version', version=self.get_version(),
             help="show program's version number and exit"
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '-v', '--verbosity', default=1,
             type=int, choices=[0, 1, 2, 3],
             help=(
@@ -311,7 +299,7 @@ class BaseCommand:
                 '2=verbose output, 3=very verbose output'
             )
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--settings',
             help=(
                 'The Python path to a settings module, e.g. '
@@ -319,22 +307,22 @@ class BaseCommand:
                 'DJANGO_SETTINGS_MODULE environment variable will be used.'
             )
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--pythonpath',
             help=(
                 'A directory to add to the Python path,'
                 'e.g. "/home/djangoprojects/myproject".'
             )
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--traceback', action='store_true',
             help='Raise on CommandError exceptions'
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--no-color', action='store_true',
             help="Don't colorize the command output."
         )
-        add_base_argument(
+        self.add_base_argument(
             parser, '--force-color', action='store_true',
             help='Force colorization of the command output.'
         )
@@ -535,6 +523,17 @@ class BaseCommand:
         this method.
         """
         raise NotImplementedError('subclasses of BaseCommand must provide a handle() method')
+
+    def add_base_argument(self, parser, *args, **kwargs):
+        """
+        Call the parser's add_argument() method, suppressing the help text
+        according to BaseCommand.suppressed_base_arguments.
+        """
+        for arg in args:
+            if arg in self.suppressed_base_arguments:
+                kwargs['help'] = argparse.SUPPRESS
+                break
+        parser.add_argument(*args, **kwargs)
 
 
 class AppCommand(BaseCommand):
